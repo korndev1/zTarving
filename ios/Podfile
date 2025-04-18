@@ -16,6 +16,8 @@ end
 
 target 'zTarving' do
   config = use_native_modules!
+  
+  pod 'RNI18n', :path => '../node_modules/react-native-i18n'
 
   use_react_native!(
     :path => config[:reactNativePath],
