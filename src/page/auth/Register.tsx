@@ -11,18 +11,11 @@ import React, {useState} from 'react';
 import {color} from '../../Constant/colors';
 import I18n from '../../i18n';
 import {getFontFamily} from '../../common/utils/font';
-import {IconCloseEye, IconEye} from '../../assets/Icon';
+import {IconArrowLeft, IconCloseEye, IconEye} from '../../assets/Icon';
 import { useNavigation } from '@react-navigation/native';
-import { REGISTER_PAGE } from '../../routes/constant';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-type RootStackParamList = {
-  REGISTER_PAGE:undefined
-};
-
-
-const Login = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const Register= () => {
+  const navigation = useNavigation()
   const [lang, setLang] = useState(I18n.locale);
   const [showPass, setShowPass] = useState(false);
 
@@ -42,30 +35,18 @@ const Login = () => {
             flexDirection: 'row',
             marginTop: 20,
             width: Dimensions.get('screen').width,
-            justifyContent: 'flex-end',
+            justifyContent: 'flex-start',
             padding: 20,
           }}>
           <TouchableOpacity
             style={[
               styles.switch_button,
-              {flexDirection: lang == 'th' ? 'row' : 'row-reverse'},
+             
             ]}
             onPress={() => {
-              if (lang == 'th') {
-                handleChangeLanguage('en');
-              } else {
-                handleChangeLanguage('th');
-              }
+             navigation.goBack()
             }}>
-            <View
-              style={[styles.select_lang, {backgroundColor: color.primary}]}>
-              <Text style={[styles.lang_text, {color: color.white}]}>
-                {lang == 'th' ? 'TH' : 'EN'}
-              </Text>
-            </View>
-            <View style={[styles.select_lang]}>
-              <Text style={styles.lang_text}>{lang == 'th' ? 'EN' : 'TH'}</Text>
-            </View>
+            <IconArrowLeft/>
           </TouchableOpacity>
         </View>
         <Image
@@ -76,9 +57,17 @@ const Login = () => {
 
       <View style={styles.box_login}>
         <View style={{width: '100%', paddingHorizontal: 30, paddingTop: 50}}>
+        <TextInput
+            style={styles.text_box}
+            placeholder={I18n.t('first_name')}
+          />
+            <TextInput
+            style={[styles.text_box,{marginTop:15}]}
+            placeholder={I18n.t('last_name')}
+          />
           <TextInput
             keyboardType="email-address"
-            style={styles.text_box}
+            style={[styles.text_box,{marginTop:15}]}
             placeholder={I18n.t('email')}
           />
           <View
@@ -105,16 +94,30 @@ const Login = () => {
               {showPass ? <IconEye /> : <IconCloseEye />}
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={{marginTop: 15, alignSelf: 'flex-end'}}>
-            <Text
+          <View
+            style={[
+              styles.text_box,
+              {
+                marginTop: 15,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              },
+            ]}>
+            <TextInput
+              secureTextEntry={showPass}
               style={{
-                color: color.primary,
+                fontSize: 20,
+                marginVertical: 5,
                 fontFamily: getFontFamily('semibold'),
-                fontSize: 18,
-              }}>
-              {I18n.t('forgot_pass')}
-            </Text>
-          </TouchableOpacity>
+                color: color.primary,
+              }}
+              placeholder={I18n.t('confirm_pass')}
+            />
+            <TouchableOpacity onPress={() => handleShowPass()}>
+              {showPass ? <IconEye /> : <IconCloseEye />}
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity
             style={{
               marginTop: 15,
@@ -135,37 +138,12 @@ const Login = () => {
             </Text>
           </TouchableOpacity>
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            width: '100%',
-            position: 'absolute',
-            bottom: 30,
-            alignItems:"center",
-            justifyContent:"center"
-          }}>
-          <Text
-            style={{
-              fontFamily: getFontFamily('bold'),
-              alignItems: 'center',
-            }}>
-            {I18n.t('dont_have_account')}
-          </Text>
-          <TouchableOpacity onPress={()=>navigation.navigate(REGISTER_PAGE)}>
-            <Text
-              style={{
-                fontFamily: getFontFamily('bold'),
-                color: color.primary,
-              }}>{` ${I18n.t('create_account')}`}</Text>
-          </TouchableOpacity>
-        </View>
-
       </View>
     </View>
   );
 };
 
-export default Login;
+export default Register;
 
 const styles = StyleSheet.create({
   container: {
@@ -191,13 +169,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   switch_button: {
-    backgroundColor: color.white,
-    flexDirection: 'row',
-    width: 65,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    width: 40,
     padding: 5,
     height: 40,
     borderRadius: 100,
-    justifyContent: 'space-between',
+    alignItems:"center",
+    justifyContent:"center"
   },
   select_lang: {
     // padding:5,
