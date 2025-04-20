@@ -22,6 +22,48 @@ import Svg, {
   FeComposite,
   FeBlend} from 'react-native-svg';
 
+  export function IconAlert({...props}:SvgProps){
+    return (
+      <Svg
+        width={48}
+        height={48}
+        viewBox="0 0 48 48"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        {...props}
+      >
+        <Path
+          d="M24 18v8m0 8h.02M20.58 7.72L3.64 36a4 4 0 003.42 6h33.88a4 4 0 003.42-6L27.42 7.72a4 4 0 00-6.84 0z"
+          stroke="#ED9141"
+          strokeWidth={4}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </Svg>
+    )
+  }
+
+  export function IconMail({...props}:SvgProps){
+    return (
+      <Svg
+        width={60}
+        height={60}
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        {...props}
+      >
+        <Path
+          d="M18.333 5c0-.917-.75-1.667-1.666-1.667H3.333c-.916 0-1.666.75-1.666 1.667m16.666 0v10c0 .917-.75 1.667-1.666 1.667H3.333c-.916 0-1.666-.75-1.666-1.667V5m16.666 0L10 10.833 1.667 5"
+          stroke="#ED9141"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </Svg>
+    )
+  }
+
   export function IconArrowLeft({...props}:SvgProps){
     return (
       <Svg

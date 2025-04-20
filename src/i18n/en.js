@@ -1,16 +1,22 @@
 export default {
-  dont_have_account: "Don't Have An Account",
-  create_account: 'Create Account',
+  dont_have_account: "Don't have an account?",
+  create_account: 'Create account',
   th: 'Thai',
   en: 'English',
-  email:"Email",
-    password:"Password",
-    forgot_pass:"forgot password?",
-    sign_in:"Signin",
-    first_name:"Firstname",
-    last_name:"Lastname",
-    confirm_pass:"Confirm Password",
-    sign_up:"Signup"
-
-
+  email: 'Email',
+  password: 'Password',
+  forgot_pass: 'Forgot password?',
+  sign_in: 'Sign In',
+  first_name: 'First Name',
+  last_name: 'Last Name',
+  confirm_pass: 'Confirm Password',
+  sign_up: 'Sign Up',
+  not_match_pass: 'Passwords do not match',
+  min_pass: 'Password must be at least 6 characters',
+  pls_correct_email: 'Please enter a valid email',
+  already_email_title:"Email is Already",
+  already_email_desc:"This email is already please type email again",
+  regis_error_title:"Something went wrong",
+  regis_error_desc:"Something went wrong please do it later",
+  ok:"Ok"
 };

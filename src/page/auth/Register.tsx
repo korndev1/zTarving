@@ -9,26 +9,120 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {color} from '../../Constant/colors';
-import I18n from '../../i18n';
 import {getFontFamily} from '../../common/utils/font';
-import {IconArrowLeft, IconCloseEye, IconEye} from '../../assets/Icon';
-import { useNavigation } from '@react-navigation/native';
+import {IconAlert, IconArrowLeft, IconCloseEye, IconEye, IconMail} from '../../assets/Icon';
+import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
+import i18n from '../../i18n';
+import {authService} from '../../services/auth';
+import {checkEmail, register} from '../../type';
+import Loading from '../../../component/Loading';
+import Modal from 'react-native-modal';
+import {isValidEmail} from '../../Constant/format';
 
-const Register= () => {
-  const navigation = useNavigation()
-  const [lang, setLang] = useState(I18n.locale);
-  const [showPass, setShowPass] = useState(false);
+const Register = () => {
+  const navigation = useNavigation();
+  const {t} = useTranslation();
+  const lang = i18n.language;
+  const [loading, setLoading] = useState(false);
 
-  const handleChangeLanguage = (newLang: string) => {
-    I18n.locale = newLang;
-    setLang(newLang);
-  };
+  const [showPass, setShowPass] = useState(true);
+
+  const [email, setEmail] = useState('');
+  const [emptyEmail, setEmptyEmail] = useState(false);
+  const [validEmail, setValidEmail] = useState(false);
+  const [password, setPassword] = useState('');
+  const [emptyPass, setEmptyPass] = useState(false);
+  const [minPass, setminPass] = useState(false);
+  const [confirmpass, setConfirmPass] = useState('');
+  const [emptyConPass, setEmptyConPass] = useState(false);
+  const [notMatchPass, setNotMatchPass] = useState(false);
+  const [name, setName] = useState('');
+  const [emptyName, setEmptyName] = useState(false);
+  const [lastName, setLastName] = useState('');
+  const [emptyLastName, setEmptyLastNAme] = useState(false);
+
+  const [registerError, setRegisterError] = useState(false);
+  const [alreadyEmail, setAlreadyEmail] = useState(false);
 
   const handleShowPass = () => {
     setShowPass(!showPass);
   };
+
+  const resetEmptyAlert = () => {
+    setEmptyEmail(false);
+    setEmptyConPass(false);
+    setEmptyLastNAme(false);
+    setEmptyName(false);
+    setEmptyPass(false);
+  };
+
+  const handleRegister = async () => {
+    try {
+      if (
+        email == '' ||
+        name == '' ||
+        lastName == '' ||
+        password == '' ||
+        confirmpass == ''
+      ) {
+        setEmptyEmail(email == '');
+        setEmptyConPass(confirmpass == '');
+        setEmptyLastNAme(lastName == '');
+        setEmptyName(name == '');
+        setEmptyPass(password == '');
+      } else if (confirmpass != password) {
+        resetEmptyAlert();
+        setminPass(false);
+        setValidEmail(false);
+
+        setNotMatchPass(true);
+      } else if (!isValidEmail(email)) {
+        resetEmptyAlert();
+        setNotMatchPass(false);
+        setminPass(false);
+        setValidEmail(true);
+      } else if (password.length < 5) {
+        resetEmptyAlert();
+        setValidEmail(false);
+        setNotMatchPass(false);
+        setminPass(true);
+      } else {
+        const body: checkEmail = {
+          email: email,
+        };
+        const response = await authService.checkEmail(body);
+        if (response.data.data == 'already') {
+          setAlreadyEmail(true);
+        } else {
+          const body: register = {
+            email: email,
+            firstName: name,
+            lastName: lastName,
+            password: password,
+          };
+          const response = await authService.registerUser(body);
+          setLoading(true);
+
+          if (response.status == 201) {
+            setTimeout(() => {
+              navigation.goBack();
+            }, 1000);
+          }
+        }
+      }
+    } catch (error: any) {
+      if (error.status == 400) {
+        setAlreadyEmail(true);
+      } else {
+        setRegisterError(true);
+      }
+      console.log(error.status);
+    }
+  };
   return (
     <View style={styles.container}>
+      {loading && <Loading />}
       <View style={styles.box_header}>
         <View
           style={{
@@ -39,14 +133,11 @@ const Register= () => {
             padding: 20,
           }}>
           <TouchableOpacity
-            style={[
-              styles.switch_button,
-             
-            ]}
+            style={[styles.switch_button]}
             onPress={() => {
-             navigation.goBack()
+              navigation.goBack();
             }}>
-            <IconArrowLeft/>
+            <IconArrowLeft />
           </TouchableOpacity>
         </View>
         <Image
@@ -57,19 +148,60 @@ const Register= () => {
 
       <View style={styles.box_login}>
         <View style={{width: '100%', paddingHorizontal: 30, paddingTop: 50}}>
-        <TextInput
-            style={styles.text_box}
-            placeholder={I18n.t('first_name')}
+          {/*first name*/}
+          <TextInput
+            style={[
+              styles.text_box,
+              {borderColor: emptyName ? 'red' : color.grey},
+            ]}
+            placeholder={t('first_name')}
+            value={name}
+            onChangeText={text => setName(text)}
           />
-            <TextInput
-            style={[styles.text_box,{marginTop:15}]}
-            placeholder={I18n.t('last_name')}
+
+          {/*last name*/}
+          <TextInput
+            style={[
+              styles.text_box,
+              {borderColor: emptyLastName ? 'red' : color.grey, marginTop: 15},
+            ]}
+            placeholder={t('last_name')}
+            value={lastName}
+            onChangeText={text => setLastName(text)}
           />
+
+          {/*email*/}
           <TextInput
             keyboardType="email-address"
-            style={[styles.text_box,{marginTop:15}]}
-            placeholder={I18n.t('email')}
+            style={[
+              styles.text_box,
+              {
+                borderColor: emptyEmail
+                  ? 'red'
+                  : validEmail
+                  ? 'red'
+                  : color.grey,
+                marginTop: 15,
+              },
+            ]}
+            placeholder={t('email')}
+            value={email}
+            onChangeText={text => setEmail(text)}
+            autoCapitalize="none"
+            spellCheck={false}
           />
+          {validEmail && (
+            <Text
+              style={{
+                marginTop: 10,
+                textAlign: 'right',
+                fontFamily: getFontFamily('bold'),
+                color: 'red',
+              }}>
+              {t('pls_correct_email')}
+            </Text>
+          )}
+          {/*password*/}
           <View
             style={[
               styles.text_box,
@@ -78,6 +210,7 @@ const Register= () => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                borderColor: emptyPass ? 'red' : minPass ? 'red' : color.grey,
               },
             ]}>
             <TextInput
@@ -87,13 +220,28 @@ const Register= () => {
                 marginVertical: 5,
                 fontFamily: getFontFamily('semibold'),
                 color: color.primary,
+                width: '85%',
               }}
-              placeholder={I18n.t('password')}
+              placeholder={t('password')}
+              value={password}
+              onChangeText={text => setPassword(text)}
             />
             <TouchableOpacity onPress={() => handleShowPass()}>
               {showPass ? <IconEye /> : <IconCloseEye />}
             </TouchableOpacity>
           </View>
+          {minPass && (
+            <Text
+              style={{
+                marginTop: 10,
+                textAlign: 'right',
+                fontFamily: getFontFamily('bold'),
+                color: 'red',
+              }}>
+              {t('min_pass')}
+            </Text>
+          )}
+          {/*confirm password*/}
           <View
             style={[
               styles.text_box,
@@ -102,6 +250,11 @@ const Register= () => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                borderColor: emptyConPass
+                  ? 'red'
+                  : notMatchPass
+                  ? 'red'
+                  : color.grey,
               },
             ]}>
             <TextInput
@@ -111,13 +264,27 @@ const Register= () => {
                 marginVertical: 5,
                 fontFamily: getFontFamily('semibold'),
                 color: color.primary,
+                width: '85%',
               }}
-              placeholder={I18n.t('confirm_pass')}
+              placeholder={t('confirm_pass')}
+              value={confirmpass}
+              onChangeText={text => setConfirmPass(text)}
             />
             <TouchableOpacity onPress={() => handleShowPass()}>
               {showPass ? <IconEye /> : <IconCloseEye />}
             </TouchableOpacity>
           </View>
+          {notMatchPass && (
+            <Text
+              style={{
+                marginTop: 10,
+                textAlign: 'right',
+                fontFamily: getFontFamily('bold'),
+                color: 'red',
+              }}>
+              {t('not_match_pass')}
+            </Text>
+          )}
           <TouchableOpacity
             style={{
               marginTop: 15,
@@ -127,18 +294,122 @@ const Register= () => {
               alignItems: 'center',
               padding: 5,
               borderRadius: 100,
-            }}>
+            }}
+            onPress={() => handleRegister()}>
             <Text
               style={{
                 color: color.white,
                 fontFamily: getFontFamily('semibold'),
                 fontSize: 18,
               }}>
-              {I18n.t('sign_in')}
+              {t('sign_in')}
+            </Text>
+          </TouchableOpacity>
+          <Text>{process.env.BASE_URL}</Text>
+        </View>
+      </View>
+      <Modal
+        isVisible={alreadyEmail}
+        onBackdropPress={() => setAlreadyEmail(false)}>
+        <View
+          style={{
+            backgroundColor: color.white,
+            borderRadius: 10,
+            width: 350,
+            height: 300,
+            alignSelf: 'center',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 10,
+          }}>
+            <IconMail/>
+          <Text
+            style={{
+              fontFamily: getFontFamily('bold'),
+              color: color.primary,
+              fontSize: 30,
+            }}>
+            {t('already_email_title')}
+          </Text>
+          <Text
+            style={{
+              fontFamily: getFontFamily('medium'),
+              color: color.black,
+              fontSize: 16,
+            }}>
+            {t('already_email_desc')}
+          </Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: color.primary,
+              padding: 10,
+              width: 80,
+              alignItems: 'center',
+              borderRadius: 10,
+              marginTop: 10,
+            }}
+            onPress={()=>{
+              setAlreadyEmail(false)
+            }}
+            >
+            <Text
+              style={{fontFamily: getFontFamily('bold'), color: color.white}}>
+              {t('ok')}
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Modal>
+      <Modal
+        isVisible={registerError}
+        onBackdropPress={() => setRegisterError(false)}>
+          <View
+          style={{
+            backgroundColor: color.white,
+            borderRadius: 10,
+            width: 350,
+            height: 300,
+            alignSelf: 'center',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 10,
+          }}>
+            <IconAlert/>
+          <Text
+            style={{
+              fontFamily: getFontFamily('bold'),
+              color: color.primary,
+              fontSize: 30,
+            }}>
+            {t('regis_error_title')}
+          </Text>
+          <Text
+            style={{
+              fontFamily: getFontFamily('medium'),
+              color: color.black,
+              fontSize: 16,
+            }}>
+            {t('regis_error_desc')}
+          </Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: color.primary,
+              padding: 10,
+              width: 80,
+              alignItems: 'center',
+              borderRadius: 10,
+              marginTop: 10,
+            }}
+            onPress={()=>{
+              setRegisterError(false)
+            }}
+            >
+            <Text
+              style={{fontFamily: getFontFamily('bold'), color: color.white}}>
+              {t('ok')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -174,8 +445,8 @@ const styles = StyleSheet.create({
     padding: 5,
     height: 40,
     borderRadius: 100,
-    alignItems:"center",
-    justifyContent:"center"
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   select_lang: {
     // padding:5,

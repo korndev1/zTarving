@@ -9,12 +9,13 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {color} from '../../Constant/colors';
-import I18n from '../../i18n';
 import {getFontFamily} from '../../common/utils/font';
+import i18n from '../../i18n';
 import {IconCloseEye, IconEye} from '../../assets/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { REGISTER_PAGE } from '../../routes/constant';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 
 type RootStackParamList = {
   REGISTER_PAGE:undefined
@@ -23,12 +24,13 @@ type RootStackParamList = {
 
 const Login = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [lang, setLang] = useState(I18n.locale);
+  const { t } = useTranslation();
+  const lang = i18n.language
+
   const [showPass, setShowPass] = useState(false);
 
   const handleChangeLanguage = (newLang: string) => {
-    I18n.locale = newLang;
-    setLang(newLang);
+i18n.changeLanguage(newLang)
   };
 
   const handleShowPass = () => {
@@ -79,7 +81,7 @@ const Login = () => {
           <TextInput
             keyboardType="email-address"
             style={styles.text_box}
-            placeholder={I18n.t('email')}
+            placeholder={t('email')}
           />
           <View
             style={[
@@ -99,7 +101,7 @@ const Login = () => {
                 fontFamily: getFontFamily('semibold'),
                 color: color.primary,
               }}
-              placeholder={I18n.t('password')}
+              placeholder={t('password')}
             />
             <TouchableOpacity onPress={() => handleShowPass()}>
               {showPass ? <IconEye /> : <IconCloseEye />}
@@ -112,7 +114,7 @@ const Login = () => {
                 fontFamily: getFontFamily('semibold'),
                 fontSize: 18,
               }}>
-              {I18n.t('forgot_pass')}
+              {t('forgot_pass')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -131,7 +133,7 @@ const Login = () => {
                 fontFamily: getFontFamily('semibold'),
                 fontSize: 18,
               }}>
-              {I18n.t('sign_in')}
+              {t('sign_in')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -146,17 +148,17 @@ const Login = () => {
           }}>
           <Text
             style={{
-              fontFamily: getFontFamily('bold'),
+              fontFamily: getFontFamily('regular'),
               alignItems: 'center',
             }}>
-            {I18n.t('dont_have_account')}
+            {t('dont_have_account')}
           </Text>
           <TouchableOpacity onPress={()=>navigation.navigate(REGISTER_PAGE)}>
             <Text
               style={{
                 fontFamily: getFontFamily('bold'),
                 color: color.primary,
-              }}>{` ${I18n.t('create_account')}`}</Text>
+              }}>{` ${t('create_account')}`}</Text>
           </TouchableOpacity>
         </View>
 
